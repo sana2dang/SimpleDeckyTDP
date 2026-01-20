@@ -16,8 +16,8 @@ export function TdpProfiles({ isDesktop }: { isDesktop: boolean }) {
   );
 
   const label = isDesktop
-    ? "Enable Desktop Profile"
-    : "Enable per-game profiles";
+    ? "Desktop 프로파일 사용"
+    : "게임별 프로파일 사용";
 
   return (
     <DeckyRow>
