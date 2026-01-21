@@ -1,11 +1,5 @@
 import * as ko from '../i18n/ko.json';
 
-const simplifiedChinese = {
-  name: '简体中文',
-  strings: zhCn,
-  credit: ['zhzy0077', 'XHXIAIEIN', 'simon3000'],
-};
-
 export const LANGS: {
   [key: string]: {
     name: string,
@@ -15,148 +9,11 @@ export const LANGS: {
     credit: string[]
   }
 } = {
-  cs: {
-    name: 'Čeština',
-    strings: cs,
-    credit: ['zenobit', 'theczechczech'],
-  },
-  da: {
-    name: 'Dansk',
-    strings: da,
-    credit: ['Jakob Frank Mogensen'],
-  },
-  de: {
-    name: 'Deutsch',
-    strings: de,
-    credit: ['Kurikuo', 'benutzer_artur7', 'Anja', 'FL0W', 'Remirax', 'LittleFreak', 'bignutty', 'Tom Taylor'],
-  },
-  fi: {
-    name: 'Suomi',
-    strings: fi,
-    credit: ['Jage'],
-  },
-  el: {
-    name: 'Ελληνικά',
-    strings: el,
-    credit: ['Emenesu'],
-  },
-  es: {
-    name: 'Español-España',
-    strings: es,
-    credit: ['Andrea Laguillo', 'Kam', 'm0uch0'],
-  },
-  'es-419': {
-    name: 'Español-Latinoamérica',
-    strings: es419,
-    credit: ['Kam', 'Knux03'],
-  },
-  fr: {
-    name: 'Français',
-    strings: fr,
-    credit: ['Michael Jean', 'Xunkar'],
-  },
-  it: {
-    name: 'Italiano',
-    strings: it,
-    credit: ['SpagottoB37', 'RodoMa92', 'federico-ntr'],
-  },
-  ja: {
-    name: '日本語',
-    strings: ja,
-    credit: ['Nes'],
-  },
   ko: {
     name: '한국어',
     strings: ko,
     credit: ['yor42', 'sua (sua_owo)'],
-  },
-  nl: {
-    name: 'Nederlands',
-    strings: nl,
-    credit: ['Phanpy100 (Fanny)', 'Jannes Verlinde'],
-  },
-  pl: {
-    name: 'Polski',
-    strings: pl,
-    credit: ['DRS', 'Michał Kwiatkowski', 'MAX0R', 'minttuNB', 'Szymon Kucharski'],
-  },
-  pt: {
-    name: 'Português',
-    strings: pt,
-    credit: ['Kokasgui', 'Ev1lbl0w'],
-  },
-  'pt-br': {
-    name: 'Português-Brasil',
-    strings: ptBr,
-    credit: ['Oregano', 'Thomas Eric'],
-  },
-  ro: {
-    name: 'Română',
-    strings: ro,
-    credit: ['Munt'],
-  },
-  ru: {
-    name: 'Русский',
-    strings: ru,
-    credit: ['fycher', 'LostHikking'],
-  },
-  sv: {
-    name: 'Svenska',
-    strings: sv,
-    credit: ['Moneyman Dan', 'Super', 'Daniel Nylander'],
-  },
-  tr: {
-    name: 'Türkçe',
-    strings: tr,
-    credit: ['Bilgehan Ceviz', 'Sib | Twig'],
-  },
-  uk: {
-    name: 'Українська',
-    strings: uk,
-    credit: ['Veydzher', 'Kefir'],
-  },
-  'zh-cn': simplifiedChinese,
-  'sc-sc': simplifiedChinese, // sc-sc is "SteamChina" i think?, it's mapped to zh-cn in the client so doing the same here.
-  'zh-tw': {
-    name: '正體中文',
-    strings: zhTw,
-    credit: ['mingyc'],
-  },
-  no: {
-    name: 'Norsk',
-    strings: no,
-    credit: ['minttuNB'],
-  },
-  hu: {
-    name: 'Magyar',
-    strings: hu,
-    credit: ['minttuNB'],
-  },
-//  th: {
-//    name: 'ไทย',
-//    strings: th,
-//    credit: []
-//  },
-  //  bg: {
-  //    name: 'български език',
-  //    strings: bg,
-  //    credit: []
-  //  },
-//  en: {
-//    name: 'English',
-//    strings: en,
-//    credit: []
-//  }
-//  vn: {
-//    name: 'Tiếng Việt',
-//    strings: vn,
-//    credit: []
-//  },
-//  id: {
-//    name: 'Bahasa Indonesia',
-//    strings: id,
-//    credit: []
-//  },
+  },  
 };
 
 let cachedLang: string | undefined;
