@@ -1,0 +1,6 @@
+{
+  "TDP_PROFILE_ENABLE_DESKTOP": "Desktop 프로파일 적용",
+  "TDP_PROFILE_ENABLE_PER_GAME": "게임별 프로파일 적용",
+  "TDP_RANGE_MIN_TDP": "최소 TDP",
+  "TDP_RANGE_MAX_TDP": "최대 TDP"
+}
