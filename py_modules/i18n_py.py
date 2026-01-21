@@ -26,7 +26,8 @@ LANGS = {
 def load_translations():
     """Load all translation files from the i18n directory"""
     translations = {}
-    # i18n 디렉토리 경로 (파일과 같은 위치에 i18n 폴더가 있다고 가정)
+    # i18n 디렉토리 경로: py_modules/../src/i18n
+    # py_modules/i18n_py.py에서 src/i18n으로 이동
     i18n_dir = os.path.join(os.path.dirname(__file__), '..', 'src', 'i18n')
     
     if os.path.exists(i18n_dir):
@@ -49,20 +50,20 @@ _cached_lang = None
 
 def get_current_language():
     """
-    Get the current system language (Steam OS compatible)
+    Get the current language (Steam Deck compatible)
     
-    This function mimics the behavior of TypeScript's getCurrentLanguage()
-    by detecting the system locale from Steam OS environment.
+    This function detects the language from Steam's settings on Steam Deck.
     
     Returns:
         str: Language code (e.g., 'ko', 'en', 'ja', 'zh')
     
     Priority:
-        1. Environment variable STEAM_COMPAT_CLIENT_INSTALL_PATH (Steam language)
-        2. Environment variable LANGUAGE
-        3. Environment variable LANG
-        4. System locale
-        5. Default to 'en'
+        1. Steam language config file (~/.steam/registry.vdf)
+        2. Environment variable STEAM_COMPAT_CLIENT_INSTALL_PATH
+        3. Environment variable LANGUAGE
+        4. Environment variable LANG
+        5. System locale
+        6. Default to 'en'
     """
     global _cached_lang
     
@@ -72,19 +73,65 @@ def get_current_language():
     
     lang = None
     
-    # 1. Steam 환경 변수 확인 (Steam OS specific)
-    # Steam은 LANGUAGE 환경변수를 설정함
-    steam_lang = os.environ.get('LANGUAGE', '').split(':')[0].split('_')[0].lower()
-    if steam_lang and steam_lang in LANGS:
-        lang = steam_lang
+    # 1. Steam 설정 파일에서 언어 읽기 (가장 정확)
+    try:
+        steam_config_paths = [
+            os.path.expanduser('~/.steam/registry.vdf'),
+            os.path.expanduser('~/.local/share/Steam/registry.vdf'),
+            os.path.expanduser('~/snap/steam/common/.steam/registry.vdf'),
+        ]
+        
+        for config_path in steam_config_paths:
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    # "language" "korean" 또는 "language" "english" 형식 찾기
+                    import re
+                    match = re.search(r'"language"\s+"(\w+)"', content, re.IGNORECASE)
+                    if match:
+                        steam_lang = match.group(1).lower()
+                        # Steam 언어 코드를 표준 언어 코드로 변환
+                        steam_lang_map = {
+                            'korean': 'ko',
+                            'koreana': 'ko',
+                            'english': 'en',
+                            'japanese': 'ja',
+                            'schinese': 'zh',  # Simplified Chinese
+                            'tchinese': 'zh',  # Traditional Chinese
+                            'spanish': 'es',
+                            'french': 'fr',
+                            'german': 'de',
+                            'italian': 'it',
+                            'portuguese': 'pt',
+                            'russian': 'ru',
+                        }
+                        lang_code = steam_lang_map.get(steam_lang, steam_lang[:2])
+                        if lang_code in LANGS:
+                            lang = lang_code
+                            break
+    except Exception as e:
+        # Steam 설정 파일 읽기 실패 시 무시
+        pass
     
-    # 2. LANG 환경변수 확인
+    # 2. Steam 관련 환경변수 확인
+    if not lang:
+        steam_lang = os.environ.get('STEAM_COMPAT_CLIENT_INSTALL_PATH', '')
+        if 'korean' in steam_lang.lower():
+            lang = 'ko'
+    
+    # 3. LANGUAGE 환경변수 확인
+    if not lang:
+        lang_env = os.environ.get('LANGUAGE', '').split(':')[0].split('_')[0].lower()
+        if lang_env in LANGS:
+            lang = lang_env
+    
+    # 4. LANG 환경변수 확인
     if not lang:
         lang_env = os.environ.get('LANG', '').split('.')[0].split('_')[0].lower()
         if lang_env in LANGS:
             lang = lang_env
     
-    # 3. 시스템 locale 확인
+    # 5. 시스템 locale 확인
     if not lang:
         try:
             system_locale = locale.getdefaultlocale()[0]
@@ -95,7 +142,7 @@ def get_current_language():
         except:
             pass
     
-    # 4. 기본값: 영어
+    # 6. 기본값: 영어
     if not lang:
         lang = 'en'
     
@@ -188,6 +235,16 @@ def set_language(lang):
         _cached_lang = lang
     else:
         print(f"Warning: Language '{lang}' not supported. Available: {list(LANGS.keys())}")
+
+def reset_language():
+    """
+    Reset language cache to force re-detection
+    
+    Example:
+        reset_language()  # Next call to get_current_language() will re-detect
+    """
+    global _cached_lang
+    _cached_lang = None
 
 def reload_translations():
     """Reload translation files (useful for development)"""
