@@ -26,11 +26,55 @@ LANGS = {
 def load_translations():
     """Load all translation files from the i18n directory"""
     translations = {}
-    # i18n 디렉토리 경로: py_modules/../src/i18n
-    # py_modules/i18n_py.py에서 src/i18n으로 이동
-    i18n_dir = os.path.join(os.path.dirname(__file__), '..', 'src', 'i18n')
     
-    if os.path.exists(i18n_dir):
+    # i18n 디렉토리 경로 찾기
+    # 우선순위:
+    # 1. 환경 변수 I18N_DIR (수동 설정)
+    # 2. DECKY_PLUGIN_DIR (Decky Plugin 환경)
+    # 3. 자동 탐색 (여러 경로 시도)
+    
+    i18n_dir = None
+    
+    # 1. 환경 변수 I18N_DIR 확인
+    if os.environ.get('I18N_DIR'):
+        i18n_dir = os.environ.get('I18N_DIR')
+    
+    # 2. Decky Plugin 환경 확인 (가장 신뢰할 수 있는 방법)
+    elif os.environ.get('DECKY_PLUGIN_DIR'):
+        plugin_dir = os.environ.get('DECKY_PLUGIN_DIR')
+        i18n_dir = os.path.join(plugin_dir, 'src', 'i18n')
+    
+    # 3. 자동 탐색
+    else:
+        current_file = os.path.abspath(__file__)
+        
+        # py_modules/i18n_py.py에서 실행되는 경우
+        possible_paths = [
+            # 기본 구조: py_modules/../src/i18n
+            os.path.join(os.path.dirname(current_file), '..', 'src', 'i18n'),
+            
+            # 대안 1: py_modules와 src가 다른 레벨
+            os.path.join(os.path.dirname(current_file), '..', '..', 'src', 'i18n'),
+            
+            # 대안 2: src가 py_modules 안에
+            os.path.join(os.path.dirname(current_file), 'src', 'i18n'),
+            
+            # 대안 3: i18n이 py_modules와 같은 레벨
+            os.path.join(os.path.dirname(current_file), '..', 'i18n'),
+        ]
+        
+        # 첫 번째로 존재하는 경로 사용
+        for path in possible_paths:
+            abs_path = os.path.abspath(path)
+            if os.path.exists(abs_path) and os.path.isdir(abs_path):
+                i18n_dir = abs_path
+                break
+    
+    if not i18n_dir or not os.path.exists(i18n_dir):
+        # 번역 파일을 찾을 수 없음 - 빈 딕셔너리 반환
+        return translations
+    
+    try:
         for filename in os.listdir(i18n_dir):
             if filename.endswith('.json'):
                 lang = filename.replace('.json', '')
@@ -39,6 +83,8 @@ def load_translations():
                         translations[lang] = json.load(f)
                 except Exception as e:
                     print(f"Error loading translation file {filename}: {e}")
+    except Exception as e:
+        print(f"Error reading i18n directory {i18n_dir}: {e}")
     
     return translations
 
@@ -75,7 +121,10 @@ def get_current_language():
     
     # 1. Steam 설정 파일에서 언어 읽기 (가장 정확)
     try:
+        # Decky Plugin 환경에서는 /home/deck을 명시적으로 사용
         steam_config_paths = [
+            '/home/deck/.steam/registry.vdf',
+            '/home/deck/.local/share/Steam/registry.vdf',
             os.path.expanduser('~/.steam/registry.vdf'),
             os.path.expanduser('~/.local/share/Steam/registry.vdf'),
             os.path.expanduser('~/snap/steam/common/.steam/registry.vdf'),
@@ -83,33 +132,40 @@ def get_current_language():
         
         for config_path in steam_config_paths:
             if os.path.exists(config_path):
-                with open(config_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                    # "language" "korean" 또는 "language" "english" 형식 찾기
-                    import re
-                    match = re.search(r'"language"\s+"(\w+)"', content, re.IGNORECASE)
-                    if match:
-                        steam_lang = match.group(1).lower()
-                        # Steam 언어 코드를 표준 언어 코드로 변환
-                        steam_lang_map = {
-                            'korean': 'ko',
-                            'koreana': 'ko',
-                            'english': 'en',
-                            'japanese': 'ja',
-                            'schinese': 'zh',  # Simplified Chinese
-                            'tchinese': 'zh',  # Traditional Chinese
-                            'spanish': 'es',
-                            'french': 'fr',
-                            'german': 'de',
-                            'italian': 'it',
-                            'portuguese': 'pt',
-                            'russian': 'ru',
-                        }
-                        lang_code = steam_lang_map.get(steam_lang, steam_lang[:2])
-                        if lang_code in LANGS:
-                            lang = lang_code
-                            break
-    except Exception as e:
+                try:
+                    with open(config_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                        # "language" "korean" 또는 "language" "english" 형식 찾기
+                        import re
+                        match = re.search(r'"language"\s+"(\w+)"', content, re.IGNORECASE)
+                        if match:
+                            steam_lang = match.group(1).lower()
+                            # Steam 언어 코드를 표준 언어 코드로 변환
+                            steam_lang_map = {
+                                'korean': 'ko',
+                                'koreana': 'ko',
+                                'english': 'en',
+                                'japanese': 'ja',
+                                'schinese': 'zh',  # Simplified Chinese
+                                'tchinese': 'zh',  # Traditional Chinese
+                                'spanish': 'es',
+                                'french': 'fr',
+                                'german': 'de',
+                                'italian': 'it',
+                                'portuguese': 'pt',
+                                'russian': 'ru',
+                            }
+                            lang_code = steam_lang_map.get(steam_lang, steam_lang[:2])
+                            if lang_code in LANGS:
+                                lang = lang_code
+                                break
+                except PermissionError:
+                    # 권한 문제로 읽을 수 없는 경우 계속 진행
+                    continue
+                except Exception:
+                    # 다른 오류 발생 시 계속 진행
+                    continue
+    except Exception:
         # Steam 설정 파일 읽기 실패 시 무시
         pass
     
@@ -245,6 +301,126 @@ def reset_language():
     """
     global _cached_lang
     _cached_lang = None
+
+def get_language_debug_info():
+    """
+    Get debug information about language detection (useful for Decky Plugin debugging)
+    
+    Returns:
+        dict: Debug information including paths, environment variables, and detection result
+    
+    Example:
+        debug_info = get_language_debug_info()
+        print(json.dumps(debug_info, indent=2))
+    """
+    import re
+    
+    debug_info = {
+        'detected_language': get_current_language(),
+        'cached': _cached_lang is not None,
+        'current_file': os.path.abspath(__file__),
+        'working_directory': os.getcwd(),
+        'steam_config_files': {},
+        'environment_variables': {},
+        'decky_environment': {},
+        'translations_loaded': list(TRANSLATIONS.keys()),
+        'supported_languages': list(LANGS.keys()),
+        'i18n_paths_checked': [],
+    }
+    
+    # Decky Plugin 환경 변수 확인
+    decky_vars = [
+        'DECKY_PLUGIN_DIR',
+        'DECKY_PLUGIN_NAME',
+        'DECKY_USER_HOME',
+        'DECKY_HOME',
+        'DECKY_VERSION',
+    ]
+    for var in decky_vars:
+        value = os.environ.get(var)
+        if value:
+            debug_info['decky_environment'][var] = value
+    
+    # Decky Plugin 환경이면 예상 경로 추가
+    if os.environ.get('DECKY_PLUGIN_DIR'):
+        plugin_dir = os.environ.get('DECKY_PLUGIN_DIR')
+        decky_i18n_path = os.path.join(plugin_dir, 'src', 'i18n')
+        debug_info['decky_environment']['expected_i18n_path'] = decky_i18n_path
+        debug_info['decky_environment']['expected_i18n_exists'] = os.path.exists(decky_i18n_path)
+    
+    # i18n 디렉토리 후보 경로들
+    current_file = os.path.abspath(__file__)
+    possible_i18n_paths = [
+        ('환경 변수 I18N_DIR', os.environ.get('I18N_DIR')),
+        ('Decky Plugin (DECKY_PLUGIN_DIR/src/i18n)', 
+         os.path.join(os.environ.get('DECKY_PLUGIN_DIR', ''), 'src', 'i18n') if os.environ.get('DECKY_PLUGIN_DIR') else None),
+        ('기본 구조', os.path.join(os.path.dirname(current_file), '..', 'src', 'i18n')),
+        ('대안 1', os.path.join(os.path.dirname(current_file), '..', '..', 'src', 'i18n')),
+        ('대안 2', os.path.join(os.path.dirname(current_file), 'src', 'i18n')),
+        ('대안 3', os.path.join(os.path.dirname(current_file), '..', 'i18n')),
+    ]
+    
+    for desc, path in possible_i18n_paths:
+        if not path:
+            continue
+            
+        abs_path = os.path.abspath(path)
+        path_info = {
+            'description': desc,
+            'path': abs_path,
+            'exists': os.path.exists(abs_path),
+            'is_dir': os.path.isdir(abs_path) if os.path.exists(abs_path) else False,
+            'files': []
+        }
+        
+        if path_info['exists'] and path_info['is_dir']:
+            try:
+                path_info['files'] = [f for f in os.listdir(abs_path) if f.endswith('.json')]
+            except Exception as e:
+                path_info['error'] = str(e)
+        
+        debug_info['i18n_paths_checked'].append(path_info)
+    
+    # Steam 설정 파일 확인
+    steam_config_paths = [
+        '/home/deck/.steam/registry.vdf',
+        '/home/deck/.local/share/Steam/registry.vdf',
+        os.path.expanduser('~/.steam/registry.vdf'),
+        os.path.expanduser('~/.local/share/Steam/registry.vdf'),
+    ]
+    
+    for path in steam_config_paths:
+        exists = os.path.exists(path)
+        language_found = None
+        
+        if exists:
+            try:
+                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    match = re.search(r'"language"\s+"(\w+)"', content, re.IGNORECASE)
+                    if match:
+                        language_found = match.group(1)
+            except Exception as e:
+                language_found = f'ERROR: {str(e)}'
+        
+        debug_info['steam_config_files'][path] = {
+            'exists': exists,
+            'language': language_found
+        }
+    
+    # 환경 변수 확인
+    env_vars = ['I18N_DIR', 'LANGUAGE', 'LANG', 'LC_ALL', 'STEAM_COMPAT_CLIENT_INSTALL_PATH', 'HOME', 'USER']
+    for var in env_vars:
+        debug_info['environment_variables'][var] = os.environ.get(var, None)
+    
+    # 실제 사용된 i18n 디렉토리
+    debug_info['i18n_directory_used'] = None
+    for path_info in debug_info['i18n_paths_checked']:
+        if path_info['exists'] and path_info['is_dir'] and path_info['files']:
+            debug_info['i18n_directory_used'] = path_info['path']
+            break
+    
+    return debug_info
 
 def reload_translations():
     """Reload translation files (useful for development)"""
