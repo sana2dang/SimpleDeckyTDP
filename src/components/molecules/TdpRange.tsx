@@ -65,7 +65,7 @@ const TdpRange = () => {
         <DeckyRow>
           <TdpRangeSlider
             tdpRange={[MIN_TDP_RANGE, 12]}
-            label=t('TDP_RANGE_MIN_TDP','Minimum TDP')
+            label={t('TDP_RANGE_MIN_TDP','Minimum TDP')}
             value={minTdp}
             onChange={setMinTdp}
           />
@@ -73,7 +73,7 @@ const TdpRange = () => {
         <DeckyRow>
           <TdpRangeSlider
             tdpRange={[15, maxSupportedTdpValue]}
-            label=t('TDP_RANGE_MAX_TDP','Max TDP')
+            label={t('TDP_RANGE_MAX_TDP','Max TDP')}
             value={maxTdp}
             onChange={setMaxTdp}
           />
