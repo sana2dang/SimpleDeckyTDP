@@ -27,7 +27,7 @@ def load_translations():
     """Load all translation files from the i18n directory"""
     translations = {}
     # i18n 디렉토리 경로 (파일과 같은 위치에 i18n 폴더가 있다고 가정)
-    i18n_dir = os.path.join(os.path.dirname(__file__), '..', 'i18n')
+    i18n_dir = os.path.join(os.path.dirname(__file__), '..', 'src', 'i18n')
     
     if os.path.exists(i18n_dir):
         for filename in os.listdir(i18n_dir):
