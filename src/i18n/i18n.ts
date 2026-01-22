@@ -1,4 +1,4 @@
-import * as ko from '../../i18n/ko.json';
+import * as ko from '../../defaults/i18n/ko.json';
 
 export const LANGS: {
   [key: string]: {
