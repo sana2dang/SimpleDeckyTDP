@@ -4,7 +4,7 @@ import { getCurrentTdpInfoSelector } from "../../redux-modules/settingsSlice";
 import ErrorBoundary from "../ErrorBoundary";
 import { DeckyRow, DeckyToggle } from "../atoms/DeckyFrontendLib";
 
-import t from '../../../i18n';
+import t from '../../../i18n/i18n';
 
 export function TdpProfiles({ isDesktop }: { isDesktop: boolean }) {
   const [tdpProfilesEnabled, setTdpProfilesEnabled] = useTdpProfilesEnabled();
