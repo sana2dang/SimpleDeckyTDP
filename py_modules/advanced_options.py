@@ -6,7 +6,7 @@ from devices import rog_ally, lenovo
 import device_utils
 import ryzenadj
 import charge_limit
-from i18n_py import t
+from ..i18n.i18n_py import t
 
 PLATFORM_PROFILE_PATH = '/sys/firmware/acpi/platform_profile'
 
