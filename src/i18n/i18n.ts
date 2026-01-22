@@ -2,22 +2,25 @@ import * as ko from '../i18n/ko.json';
 
 export const LANGS: {
   [key: string]: {
-    name: string,
+    name: string;
     strings: {
-      [key: string]: string
-    },
-    credit: string[]
-  }
+      [key: string]: string;
+    };
+  };
 } = {
   ko: {
     name: '한국어',
     strings: ko,
-    credit: ['sana2dang'],
-  },  
+  },
+  en: {
+    name: 'English',
+    strings: {},
+  },
 };
 
 let cachedLang: string | undefined;
-const getCurrentLanguage = (): string => {
+
+export const getCurrentLanguage = (): string => {
   if (cachedLang) return cachedLang;
 
   const lang = window.LocalizationManager.m_rgLocalesToUse[0];
@@ -25,42 +28,29 @@ const getCurrentLanguage = (): string => {
   return lang;
 };
 
-export const getCredits = (lang?: string) => {
-  if (lang) return LANGS[lang]?.credit;
-  return LANGS[getCurrentLanguage()]?.credit;
-};
-
 export const getLanguageName = (lang?: string): string => {
-  if (lang) return LANGS[lang]?.name;
-  return LANGS[getCurrentLanguage()]?.name;
+  const targetLang = lang || getCurrentLanguage();
+  return LANGS[targetLang]?.name || targetLang;
 };
 
 /**
- * Very basic translation cause theres like 20 strings and i don't need anything more complex.
+ * Translate a key to the current language
  *
- * @param {string} key Locale key
- * @param {string} originalString Original text
- * @param {boolean} steamToken If true, uses the key to query Steams token store.
- *    Good for actions like "Back" or "Cancel". Won't be dumped with the rest of the strings.
+ * @param key - Translation key
+ * @param originalString - Original text (fallback)
+ * @returns Translated string or original text if translation not found
  *
  * @example
- * t('TITLE_FILTER_MODAL', 'Asset Filters')
- * @example
- * // if you need variables use .replace()
- * t('ACTION_REMOVE_GAME', 'Delete {gameName}').replaceAll('{gameName}', gameName)
- * @example
- * // Original Steam string
- * t('Button_Back', 'Back', true);
+ * t('TDP_PROFILE_ENABLE_DESKTOP', 'Enable Desktop Profile')
  */
-const trans_string = (key: string, originalString: string, steamToken = false): string => {
+const t = (key: string, originalString: string): string => {
   const lang = getCurrentLanguage();
-  if (steamToken) {
-    return window.LocalizationManager.m_mapTokens.get(key) ?? window.LocalizationManager.m_mapFallbackTokens.get(key) ?? originalString;
-  }
+
+  // English always returns the original text
   if (lang === 'en') return originalString;
 
+  // Return translation if exists, otherwise return original text
   return LANGS[lang]?.strings?.[key] ?? originalString;
 };
 
-// using "trans_string" so it can be found by dump-strings
-export default trans_string;
+export default t;
