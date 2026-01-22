@@ -10,7 +10,7 @@ import { useDeviceName, useIsSteamDeck } from "../../hooks/useDeviceName";
 import { AdvancedOptionsEnum, Devices, SteamDeckAdvancedOptions } from "../../backend/utils";
 import { useAdvancedOption } from "../../hooks/useAdvanced";
 
-import t from '../../utils/i18n';
+import t from '../../../i18n';
 
 const useMaxSupportedTdpValue = () => {
   let maxTdp = 40;
