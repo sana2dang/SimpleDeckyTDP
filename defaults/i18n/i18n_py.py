@@ -18,8 +18,8 @@ def load_translations():
     # i18n 디렉토리 경로 찾기
     # 우선순위:
     # 1. 환경 변수 I18N_DIR (수동 설정)
-    # 2. DECKY_PLUGIN_DIR (Decky Plugin 환경)
-    # 3. 자동 탐색 (여러 경로 시도)
+    # 2. DECKY_PLUGIN_DIR/i18n (Decky Plugin 환경)
+    # 3. i18n_py.py와 같은 디렉토리 (기본)
     
     i18n_dir = None
     
@@ -27,36 +27,15 @@ def load_translations():
     if os.environ.get('I18N_DIR'):
         i18n_dir = os.environ.get('I18N_DIR')
     
-    # 2. Decky Plugin 환경 확인 (가장 신뢰할 수 있는 방법)
+    # 2. Decky Plugin 환경 확인
     elif os.environ.get('DECKY_PLUGIN_DIR'):
         plugin_dir = os.environ.get('DECKY_PLUGIN_DIR')
-        i18n_dir = os.path.join(plugin_dir, 'src', 'i18n')
+        i18n_dir = os.path.join(plugin_dir, 'i18n')
     
-    # 3. 자동 탐색
+    # 3. i18n_py.py와 같은 디렉토리 (기본)
     else:
         current_file = os.path.abspath(__file__)
-        
-        # py_modules/i18n_py.py에서 실행되는 경우
-        possible_paths = [
-            # 기본 구조: py_modules/../src/i18n
-            os.path.join(os.path.dirname(current_file), '..', 'src', 'i18n'),
-            
-            # 대안 1: py_modules와 src가 다른 레벨
-            os.path.join(os.path.dirname(current_file), '..', '..', 'src', 'i18n'),
-            
-            # 대안 2: src가 py_modules 안에
-            os.path.join(os.path.dirname(current_file), 'src', 'i18n'),
-            
-            # 대안 3: i18n이 py_modules와 같은 레벨
-            os.path.join(os.path.dirname(current_file), '..', 'i18n'),
-        ]
-        
-        # 첫 번째로 존재하는 경로 사용
-        for path in possible_paths:
-            abs_path = os.path.abspath(path)
-            if os.path.exists(abs_path) and os.path.isdir(abs_path):
-                i18n_dir = abs_path
-                break
+        i18n_dir = os.path.dirname(current_file)
     
     if not i18n_dir or not os.path.exists(i18n_dir):
         # 번역 파일을 찾을 수 없음 - 빈 딕셔너리 반환
@@ -314,7 +293,7 @@ def get_language_debug_info():
     # Decky Plugin 환경이면 예상 경로 추가
     if os.environ.get('DECKY_PLUGIN_DIR'):
         plugin_dir = os.environ.get('DECKY_PLUGIN_DIR')
-        decky_i18n_path = os.path.join(plugin_dir, 'src', 'i18n')
+        decky_i18n_path = os.path.join(plugin_dir, 'i18n')
         debug_info['decky_environment']['expected_i18n_path'] = decky_i18n_path
         debug_info['decky_environment']['expected_i18n_exists'] = os.path.exists(decky_i18n_path)
     
@@ -322,12 +301,9 @@ def get_language_debug_info():
     current_file = os.path.abspath(__file__)
     possible_i18n_paths = [
         ('환경 변수 I18N_DIR', os.environ.get('I18N_DIR')),
-        ('Decky Plugin (DECKY_PLUGIN_DIR/src/i18n)', 
-         os.path.join(os.environ.get('DECKY_PLUGIN_DIR', ''), 'src', 'i18n') if os.environ.get('DECKY_PLUGIN_DIR') else None),
-        ('기본 구조', os.path.join(os.path.dirname(current_file), '..', 'src', 'i18n')),
-        ('대안 1', os.path.join(os.path.dirname(current_file), '..', '..', 'src', 'i18n')),
-        ('대안 2', os.path.join(os.path.dirname(current_file), 'src', 'i18n')),
-        ('대안 3', os.path.join(os.path.dirname(current_file), '..', 'i18n')),
+        ('Decky Plugin (DECKY_PLUGIN_DIR/i18n)', 
+         os.path.join(os.environ.get('DECKY_PLUGIN_DIR', ''), 'i18n') if os.environ.get('DECKY_PLUGIN_DIR') else None),
+        ('같은 디렉토리 (i18n/)', os.path.dirname(current_file)),
     ]
     
     for desc, path in possible_i18n_paths:
