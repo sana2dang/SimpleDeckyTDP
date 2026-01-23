@@ -1,4 +1,3 @@
-```json
 {
   "TDP_PROFILE_ENABLE_DESKTOP": "デスクトッププロファイルを適用",
   "TDP_PROFILE_ENABLE_PER_GAME": "ゲーム別プロファイルを適用",
@@ -51,4 +50,3 @@
   "ADVANCED_ASUS_USE_WMI": "TDPにAsus WMIを使用",
   "ADVANCED_ASUS_USE_WMI_DESC": "ryzenadj の代わりにAsus WMI呼び出しを使用"
 }
-```
