@@ -1,4 +1,3 @@
-```json
 {
   "TDP_PROFILE_ENABLE_DESKTOP": "Apply Desktop Profile",
   "TDP_PROFILE_ENABLE_PER_GAME": "Apply Per-Game Profile",
@@ -51,4 +50,3 @@
   "ADVANCED_ASUS_USE_WMI": "Use Asus WMI for TDP",
   "ADVANCED_ASUS_USE_WMI_DESC": "Use Asus WMI calls instead of ryzenadj"
 }
-```
