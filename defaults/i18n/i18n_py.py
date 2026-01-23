@@ -6,8 +6,7 @@ import locale
 LANGS = {
     'ko': {'name': '한국어'},
     'en': {'name': 'English'},
-    'ja': {'name': '日本語'},
-    'zh': {'name': '中文'}
+    'ja': {'name': '日本語'}
 }
 
 # 번역 파일 로드
@@ -68,7 +67,7 @@ def get_current_language():
     This function detects the language from Steam's settings on Steam Deck.
     
     Returns:
-        str: Language code (e.g., 'ko', 'en', 'ja', 'zh')
+        str: Language code (e.g., 'ko', 'en', 'ja')
     
     Priority:
         1. Steam language config file (~/.steam/registry.vdf)
