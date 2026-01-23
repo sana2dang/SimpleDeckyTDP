@@ -1,4 +1,6 @@
+import * as en from '../../defaults/i18n/en.json';
 import * as ko from '../../defaults/i18n/ko.json';
+import * as ja from '../../defaults/i18n/ja.json';
 
 export const LANGS: {
   [key: string]: {
@@ -8,14 +10,19 @@ export const LANGS: {
     };
   };
 } = {
+  en: {
+    name: 'English',
+    strings: {},
+  },
   ko: {
     name: '한국어',
     strings: ko,
   },
   en: {
-    name: 'English',
-    strings: {},
+    name: '日本語',
+    strings: ja,
   },
+  
 };
 
 let cachedLang: string | undefined;
